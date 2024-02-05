@@ -1,13 +1,13 @@
 import express from 'express'
 
-import { getAllNotes, createNote, getNote } from '../controllers/jobPosts.controller'
+import { getAllJobPosts, createJobPost, getJobPost, deleteJobPost } from '../controllers/jobPosts.controller'
 
 const router = express.Router()
 
-router.get('/', getAllNotes)
-router.post('/', createNote)
-router.get('/:id', getNote)
+router.get('/', getAllJobPosts)
+router.post('/', createJobPost)
+router.get('/:id', getJobPost)
+router.delete('/:id', deleteJobPost)
 // router.put('/:id', updateNote)
-// router.delete('/:id', deleteNote)
 
 export default router
