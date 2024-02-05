@@ -1,11 +1,13 @@
 import express from 'express'
 import mainRoute from './root.route'
-import jobPostRoute from './jobPost.route'
+import jobListingsRoute from './jobListings.route'
+import verifyPostsRoute from './verifyPosts.route'
 
 const router = express.Router()
 
 router.use('/', mainRoute)
-router.use('/jobPosts', jobPostRoute)
+router.use('/jobListings', jobListingsRoute)
+router.use('/verifyPosts', verifyPostsRoute)
 
 /*========== CATCH INVALID ROUTES ========== */
 router.all('*', (req, res) => {

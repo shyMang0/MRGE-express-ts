@@ -9,7 +9,7 @@ const CreateJobPostsSchema = z.object({
 	description: z.string().min(1, 'Description is required and must be at least 1 character long')
 })
 
-export const validateCreateJobPost = (data: any): JobPostsInput => {
+export const validateCreateJobListing = (data: any): JobPostsInput => {
 	try {
 		return <JobPostsInput>CreateJobPostsSchema.parse(data)
 	} catch (error) {

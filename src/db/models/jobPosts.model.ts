@@ -6,7 +6,7 @@ interface JobPostsAttributes {
 	created_by: string
 	title: string
 	description: string
-	created_at?: Date
+	validated_at?: Date
 }
 
 export interface JobPostsInput {
@@ -14,6 +14,7 @@ export interface JobPostsInput {
 	created_by?: string
 	title?: string
 	description?: string
+	validated_at?: Date
 }
 
 export interface JobPostsOuput extends Required<JobPostsAttributes> {}
@@ -23,6 +24,7 @@ class JobPosts extends Model<JobPostsAttributes, JobPostsInput> implements JobPo
 	public created_by!: string
 	public title!: string
 	public description!: string
+	public validated_at?: Date
 	public readonly created_at?: Date
 }
 
@@ -44,6 +46,10 @@ JobPosts.init(
 		description: {
 			type: DataTypes.STRING,
 			allowNull: false
+		},
+		validated_at: {
+			type: DataTypes.DATE,
+			allowNull: true
 		}
 	},
 	{

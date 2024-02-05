@@ -1,9 +1,9 @@
 import { Request, Response } from 'express'
-import * as JobPostsService from '@/api/services/jobPosts.service'
-import { validateCreateJobPost } from '@/api/validation/jobPost.validation'
+import * as jobListingsService from '@/api/services/jobListings.service'
+import { validateCreateJobListing } from '@/api/validation/jobListings.validation'
 
-export const getAllJobPosts = async (req: Request, res: Response) => {
-	const notes = await JobPostsService.getAll()
+export const getAlljobListings = async (req: Request, res: Response) => {
+	const notes = await jobListingsService.getAll()
 	try {
 		return res.status(200).json(notes)
 	} catch (error: any) {
@@ -11,7 +11,7 @@ export const getAllJobPosts = async (req: Request, res: Response) => {
 	}
 }
 
-export const createJobPost = async (req: Request, res: Response) => {
+export const createjobListing = async (req: Request, res: Response) => {
 	// const title: unknown = req.body.title
 	// const body: unknown = req.body.body
 	// if (!title) return res.status(400).json({ message: 'title is required' })
@@ -19,32 +19,32 @@ export const createJobPost = async (req: Request, res: Response) => {
 	// const notesInput = <NotesInput>{ title, body }
 
 	try {
-		const jobPostInput = validateCreateJobPost(req.body)
-		console.log('jobPostInput', jobPostInput)
-		const data = await JobPostsService.create(jobPostInput)
+		const jobListingInput = validateCreateJobListing(req.body)
+		console.log('jobListingInput', jobListingInput)
+		const data = await jobListingsService.create(jobListingInput)
 		res.status(201).json({ success: true, message: 'new note created', data })
 	} catch (error: any) {
 		res.status(400).json({ success: false, message: error.message || error })
 	}
 }
 
-export const getJobPost = async (req: Request, res: Response) => {
+export const getjobListing = async (req: Request, res: Response) => {
 	const { id } = req.params // slug
 	if (!id) return res.status(400).json({ message: 'id is required' })
 	try {
-		const data = await JobPostsService.getById(id)
+		const data = await jobListingsService.getById(id)
 		res.json({ data })
 	} catch (error: any) {
 		res.status(404).json({ message: error.message || error })
 	}
 }
 
-export const deleteJobPost = async (req: Request, res: Response) => {
+export const deletejobListing = async (req: Request, res: Response) => {
 	const { id } = req.params // slug
 	if (!id) return res.status(400).json({ message: 'id is required' })
 
 	try {
-		const data = await JobPostsService.deleteById(id)
+		const data = await jobListingsService.deleteById(id)
 		return res.status(200).json({ success: true, message: 'row deleted', id })
 	} catch (error: any) {
 		return res.status(404).json({ success: false, message: error.message || error })
@@ -62,7 +62,7 @@ export const deleteJobPost = async (req: Request, res: Response) => {
 
 // 	try {
 // 		const notesInput = validateEditNote(req.body)
-// 		const data = await JobPostsService.update(id, notesInput)
+// 		const data = await jobListingsService.update(id, notesInput)
 // 		return res.status(200).json({ success: true, message: 'row updated', data })
 // 	} catch (error: any) {
 // 		return res.status(400).json({ success: false, message: error.message || error })
