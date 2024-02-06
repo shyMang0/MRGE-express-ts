@@ -57,8 +57,6 @@ export const composeAndSendEmail = async (
 	const subject = 'Job Posting Verification : First Time Post'
 	const body = `
 	<h1 style="text-decoration: none; color: inherit;">First Time Post By : ${newUserEmail} </h1>
-	<hr />
-
 	<div style="max-width: 500px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 5px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
 		<h2 style="margin-top: 0; color: #333;">${listing_title}</h2>
 		<p style="margin-bottom: 0; color: #666;">${listing_description}</p>

@@ -11,7 +11,7 @@ interface JobListingsAttributes {
 
 export interface JobListingsInput {
 	id: string
-	created_by?: string
+	created_by: string
 	title?: string
 	description?: string
 	validated_at?: Date

@@ -48,3 +48,12 @@ export const getAll = async (): Promise<JobListingsOuput[]> => {
 	})
 	return <JobListingsOuput[]>tests
 }
+
+export const findByEmail = async (email: string): Promise<JobListingsOuput[]> => {
+	const rows = await JobListings.findAll({
+		where: {
+			created_by: email
+		}
+	})
+	return <JobListingsOuput[]>rows
+}

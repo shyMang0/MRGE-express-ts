@@ -1,5 +1,6 @@
 // import * as NotesDal from '@/db/dal/notes.dal'
 import * as JobListingsDal from '@/db/dal/jobListings.dal'
+import * as SpamPostsDal from '@/db/dal/spamPosts.dal'
 // import { NotesInput, NotesOuput } from '@/db/models/notes.model'
 import { JobListingsInput, JobListingsOuput } from '@/db/models/jobListings.model'
 import { v4 as uuidv4 } from 'uuid'
@@ -25,4 +26,13 @@ export const deleteById = (id: string): Promise<boolean> => {
 
 export const getAll = (): Promise<JobListingsOuput[]> => {
 	return JobListingsDal.getAll()
+}
+
+export const checkUnique = async (email: string): Promise<Boolean> => {
+	const listings = await JobListingsDal.findByEmail(email)
+	const spams = await SpamPostsDal.findByEmail(email)
+	if (listings.length > 1 || spams.length > 0) {
+		return false
+	}
+	return true
 }

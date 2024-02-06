@@ -26,16 +26,20 @@ export const getAllSpamPosts = async (req: Request, res: Response) => {
 export const createjobListing = async (req: Request, res: Response) => {
 	try {
 		const jobListingInput = validateCreateJobListing(req.body)
-		//query > if first time send email
-		console.log('jobListingInput', jobListingInput)
 		const data = await jobListingsService.create(jobListingInput)
+		console.log('jobListingInput', jobListingInput)
+		const isUnique = await jobListingsService.checkUnique(jobListingInput.created_by)
+		//query > if first time send email
 		//generate links approve/decline
-		const link_approve = verifyPostsService.generateToken(data.id, 'approve')
-		const link_decline = verifyPostsService.generateToken(data.id, 'decline')
-		const email = await emailService.composeAndSendEmail(data.created_by, data.id, data.title, data.description, link_approve, link_decline)
-		res.status(201).json({ success: true, message: 'new note created', data })
+		console.log('isUnique', isUnique)
+		if (isUnique) {
+			const link_approve = verifyPostsService.generateToken(data.id, 'approve')
+			const link_decline = verifyPostsService.generateToken(data.id, 'decline')
+			const email = await emailService.composeAndSendEmail(data.created_by, data.id, data.title, data.description, link_approve, link_decline)
+		}
+		res.status(201).json({ status: true, message: 'New Job Listing Created', data, emailSent: isUnique })
 	} catch (error: any) {
-		res.status(400).json({ success: false, message: error.message || error })
+		res.status(400).json({ status: false, message: error.message || error })
 	}
 }
 

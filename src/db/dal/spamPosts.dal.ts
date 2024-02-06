@@ -1,12 +1,12 @@
-import JobListings, { SpamPostsInput, SpamPostsOuput } from '@/db/models/spamPosts.model'
+import SpamPosts, { SpamPostsInput, SpamPostsOuput } from '@/db/models/spamPosts.model'
 
 export const create = async (payload: SpamPostsInput): Promise<SpamPostsOuput> => {
-	const post = await JobListings.create(payload as any)
+	const post = await SpamPosts.create(payload as any)
 	return <SpamPostsOuput>post
 }
 
 export const update = async (id: string, payload: Partial<SpamPostsInput>): Promise<SpamPostsOuput> => {
-	const note = await JobListings.findByPk(id)
+	const note = await SpamPosts.findByPk(id)
 	if (!note) {
 		throw new Error('not found')
 	}
@@ -15,7 +15,7 @@ export const update = async (id: string, payload: Partial<SpamPostsInput>): Prom
 }
 
 export const getById = async (id: string): Promise<SpamPostsOuput> => {
-	const post = await JobListings.findByPk(id, {
+	const post = await SpamPosts.findByPk(id, {
 		paranoid: false
 	})
 	if (!post) {
@@ -29,11 +29,20 @@ export const getById = async (id: string): Promise<SpamPostsOuput> => {
 }
 
 export const getAll = async (): Promise<SpamPostsOuput[]> => {
-	const tests = await JobListings.findAll({
+	const tests = await SpamPosts.findAll({
 		paranoid: true,
 		attributes: {
 			exclude: ['deleted_at']
 		}
 	})
 	return <SpamPostsOuput[]>tests
+}
+
+export const findByEmail = async (email: string): Promise<SpamPostsOuput[]> => {
+	const rows = await SpamPosts.findAll({
+		where: {
+			created_by: email
+		}
+	})
+	return <SpamPostsOuput[]>rows
 }
