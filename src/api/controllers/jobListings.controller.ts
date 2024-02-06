@@ -24,6 +24,7 @@ export const getAllSpamPosts = async (req: Request, res: Response) => {
 }
 
 export const createjobListing = async (req: Request, res: Response) => {
+	// return res.status(200).json({ body: req.body, params: req.params })
 	try {
 		const jobListingInput = validateCreateJobListing(req.body)
 		const data = await jobListingsService.create(jobListingInput)
@@ -37,9 +38,9 @@ export const createjobListing = async (req: Request, res: Response) => {
 			const link_decline = verifyPostsService.generateToken(data.id, 'decline')
 			const email = await emailService.composeAndSendEmail(data.created_by, data.id, data.title, data.description, link_approve, link_decline)
 		}
-		res.status(201).json({ status: true, message: 'New Job Listing Created', data, emailSent: isUnique })
+		return res.status(201).json({ status: true, message: 'New Job Listing Created', data, emailSent: isUnique })
 	} catch (error: any) {
-		res.status(400).json({ status: false, message: error.message || error })
+		return res.status(400).json({ status: false, message: error.message || error })
 	}
 }
 

@@ -1,16 +1,23 @@
 import express, { Express } from 'express'
 import dotenv from 'dotenv'
 import http from 'http'
+import bodyParser from 'body-parser'
 import indexRoute from '@/api/routes/index.route'
 import { engine } from 'express-handlebars'
+import cors from 'cors'
 
 const app: Express = express()
 
-app.use(express.urlencoded({ extended: false }))
+app.use(express.urlencoded({ extended: true }))
+app.use(bodyParser.json({ limit: '50mb' }))
 
 dotenv.config()
 
-// testConnection()
+app.use(
+	cors({
+		origin: 'http://localhost:9000'
+	})
+)
 
 app.engine('handlebars', engine())
 app.set('view engine', 'handlebars')
