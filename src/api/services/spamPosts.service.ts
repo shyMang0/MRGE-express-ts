@@ -1,14 +1,14 @@
 // import * as NotesDal from '@/db/dal/notes.dal'
 import * as JobListingsDal from '@/db/dal/jobListings.dal'
+import * as SpamPostsDal from '@/db/dal/spamPosts.dal'
 // import { NotesInput, NotesOuput } from '@/db/models/notes.model'
-import { JobListingsInput, JobListingsOuput } from '@/db/models/jobListings.model'
+import JobListings, { JobListingsInput, JobListingsOuput } from '@/db/models/jobListings.model'
+import SpamPosts, { SpamPostsInput, SpamPostsOuput } from '@/db/models/spamPosts.model'
 import { v4 as uuidv4 } from 'uuid'
 // import JobPosts from '../../db/models/jobPosts.model'
 
-export const create = (payload: JobListingsInput): Promise<JobListingsOuput> => {
-	const uuid = uuidv4()
-	payload.id = uuid.slice(-5)
-	return JobListingsDal.create(payload)
+export const transferToSpam = (payload: JobListingsOuput): Promise<SpamPostsOuput> => {
+	return SpamPostsDal.create(payload)
 }
 
 export const update = (id: string, payload: Partial<JobListingsInput>): Promise<JobListingsOuput> => {
@@ -23,6 +23,6 @@ export const deleteById = (id: string): Promise<boolean> => {
 	return JobListingsDal.deleteById(id)
 }
 
-export const getAll = (): Promise<JobListingsOuput[]> => {
-	return JobListingsDal.getAll()
+export const getAll = (): Promise<SpamPostsOuput[]> => {
+	return SpamPostsDal.getAll()
 }

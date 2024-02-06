@@ -1,27 +1,40 @@
 import { Request, Response } from 'express'
+import * as verifyPostsService from '@/api/services/verifyPosts.service'
 import * as jobListingsService from '@/api/services/jobListings.service'
-import { validateCreateJobListing } from '@/api/validation/jobListings.validation'
-import * as crypto from 'crypto'
+import * as spamPostsService from '@/api/services/spamPosts.service'
 
 export const verifyListing = async (req: Request, res: Response) => {
-	const user_id = '123456'
-	const campaign_id = '7890'
-	const secret_key = 'your_secret_key'
+	const listing_id = <string>req.query.listing_id
+	const action = <string>req.query.action
+	const token = <string>req.query.token
+	const match_result = verifyPostsService.verifyToken(listing_id, action, token)
+	if (!match_result) {
+		return res.status(400).json({ message: 'action & token not valid', listing_id, action, token })
+	}
 
-	const unsubscribe_token = generateUnsubscribeToken(user_id, campaign_id, secret_key)
-	// console.log(unsubscribe_token)
-	return res.status(200).json(unsubscribe_token)
-	// const notes = await jobListingsService.getAll()
-	// try {
-	// 	return res.status(200).json(notes)
-	// } catch (error: any) {
-	// 	res.status(400).json({ message: error.message || error })
-	// }
+	const listing = await jobListingsService.getById(listing_id)
+	if (listing.validated_at) {
+		return res.status(200).json({ message: 'Listing Already Validated', listing_id })
+	}
+
+	if (action === 'approve') {
+		const update_res = await verifyPostsService.approveListing(listing_id)
+		return res.status(200).json({ listing_id, update_res })
+	} else if (action === 'decline') {
+		//move to spam table
+		const decline_res = verifyPostsService.declineListing(listing_id, listing)
+		// const _temp = <any>listing
+		// const params = { ..._temp.toJSON(), declined_at: new Date() }
+		// const transfer_res = await spamPostsService.transferToSpam(params)
+		// jobListingsService.deleteById(listing_id)
+		// return res.status(200).json({ listing: listing })
+		res.status(200).json({ message: 'Declined moved to spam', listing })
+	}
 }
-function generateUnsubscribeToken(user_id: string, campaign_id: string, secret_key: string): string {
-	const timestamp = Math.floor(Date.now() / 1000) // Current timestamp in seconds
-	const dataToHash = `${user_id}${campaign_id}${timestamp}${secret_key}`
 
-	const hashedToken = crypto.createHash('sha256').update(dataToHash).digest('hex')
-	return hashedToken
+export const generateToken = (req: Request, res: Response) => {
+	const listing_id = <string>req.query.listing_id
+	const action = <string>req.query.action
+	const token = verifyPostsService.generateToken(listing_id, action)
+	return res.status(200).json({ listing_id, action, token })
 }

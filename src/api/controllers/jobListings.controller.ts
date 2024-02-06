@@ -1,11 +1,21 @@
 import { Request, Response } from 'express'
 import * as jobListingsService from '@/api/services/jobListings.service'
+import * as spamPostsService from '@/api/services/spamPosts.service'
 import { validateCreateJobListing } from '@/api/validation/jobListings.validation'
 
 export const getAlljobListings = async (req: Request, res: Response) => {
 	const notes = await jobListingsService.getAll()
 	try {
 		return res.status(200).json(notes)
+	} catch (error: any) {
+		res.status(400).json({ message: error.message || error })
+	}
+}
+
+export const getAllSpamPosts = async (req: Request, res: Response) => {
+	const spams = await spamPostsService.getAll()
+	try {
+		return res.status(200).json(spams)
 	} catch (error: any) {
 		res.status(400).json({ message: error.message || error })
 	}

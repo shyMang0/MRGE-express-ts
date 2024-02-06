@@ -1,28 +1,43 @@
-// import * as NotesDal from '@/db/dal/notes.dal'
-import * as JobPostsDal from '@/db/dal/jobPosts.dal'
-// import { NotesInput, NotesOuput } from '@/db/models/notes.model'
-import { JobPostsInput, JobPostsOuput } from '@/db/models/jobPosts.model'
-import { v4 as uuidv4 } from 'uuid'
-import JobPosts from '../../db/models/jobPosts.model'
+import * as jobListingsService from '@/api/services/jobListings.service'
+import * as crypto from 'crypto'
+import dotenv from 'dotenv'
+import * as spamPostsService from '@/api/services/spamPosts.service'
+dotenv.config()
+const secret_key = process.env.SECRET
 
-export const create = (payload: JobPostsInput): Promise<JobPostsOuput> => {
-	const uuid = uuidv4()
-	payload.id = uuid.slice(-5)
-	return JobPostsDal.create(payload)
+export const approveListing = async (listing_id: string): Promise<any> => {
+	try {
+		const res = await jobListingsService.update(listing_id, { validated_at: new Date() })
+	} catch (error: any) {
+		throw error
+		console.error(error)
+		//throw error
+	}
+	return true
 }
 
-export const update = (id: string, payload: Partial<JobPostsInput>): Promise<JobPostsOuput> => {
-	return JobPostsDal.update(id, payload)
+export const declineListing = async (listing_id: string, listing: any): Promise<any> => {
+	try {
+		const params = { ...listing.toJSON(), declined_at: new Date() }
+		const transfer_res = await spamPostsService.transferToSpam(params)
+		const delete_res = jobListingsService.deleteById(listing_id)
+		return true
+	} catch (error: any) {
+		throw error
+	}
+	return true
 }
 
-export const getById = (id: string): Promise<JobPostsOuput> => {
-	return JobPostsDal.getById(id)
+export const verifyToken = (listing_id: string, action: string, token: string): Boolean => {
+	const generated_token = generateToken(listing_id, action)
+	if (generated_token === token) {
+		return true
+	}
+	return false
 }
 
-export const deleteById = (id: string): Promise<boolean> => {
-	return JobPostsDal.deleteById(id)
-}
-
-export const getAll = (): Promise<JobPostsOuput[]> => {
-	return JobPostsDal.getAll()
+export const generateToken = (listing_id: string, action: string): string => {
+	const dataToHash = `${listing_id}${action}${secret_key}`
+	const hashedToken = crypto.createHash('sha256').update(dataToHash).digest('hex')
+	return hashedToken
 }

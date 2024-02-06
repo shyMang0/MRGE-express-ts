@@ -1,34 +1,34 @@
 import { DataTypes, Model } from 'sequelize'
 import sequelize from '@/db/config/sequelize'
 
-interface JobPostsAttributes {
+interface SpamPostsAttributes {
 	id: string
 	created_by: string
 	title: string
 	description: string
-	validated_at?: Date
+	declined_at?: Date
 }
 
-export interface JobPostsInput {
+export interface SpamPostsInput {
 	id: string
 	created_by?: string
 	title?: string
 	description?: string
-	validated_at?: Date
+	declined_at?: Date
 }
 
-export interface JobPostsOuput extends Required<JobPostsAttributes> {}
+export interface SpamPostsOuput extends Required<SpamPostsAttributes> {}
 
-class JobPosts extends Model<JobPostsAttributes, JobPostsInput> implements JobPostsAttributes {
+class SpamPosts extends Model<SpamPostsAttributes, SpamPostsInput> implements SpamPostsAttributes {
 	public id!: string
 	public created_by!: string
 	public title!: string
 	public description!: string
-	public validated_at?: Date
+	public declined_at?: Date
 	public readonly created_at?: Date
 }
 
-JobPosts.init(
+SpamPosts.init(
 	{
 		id: {
 			type: DataTypes.STRING,
@@ -47,14 +47,14 @@ JobPosts.init(
 			type: DataTypes.STRING,
 			allowNull: false
 		},
-		validated_at: {
+		declined_at: {
 			type: DataTypes.DATE,
 			allowNull: true
 		}
 	},
 	{
 		sequelize,
-		modelName: 'JobPosts',
+		modelName: 'SpamPosts',
 		timestamps: true,
 		createdAt: 'created_at',
 		updatedAt: 'updated_at'
@@ -62,12 +62,12 @@ JobPosts.init(
 )
 
 // Sync the model with the database (creates the table if it doesn't exist)
-JobPosts.sync({ force: false })
+SpamPosts.sync({ force: false })
 	.then(() => {
-		console.log('User table created (if not exists)')
+		console.log('SpamPosts created (if not exists)')
 	})
 	.catch((err) => {
 		console.error('Error creating User table:', err)
 	})
 
-export default JobPosts
+export default SpamPosts

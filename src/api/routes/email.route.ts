@@ -1,11 +1,10 @@
 import express from 'express'
 
-import { verifyListing, generateToken } from '@/api/controllers/verifyPosts.controller'
+import { emailTest } from '@/api/controllers/email.controller'
 
 const router = express.Router()
 
-router.get('/', verifyListing)
-router.get('/generate', generateToken)
+router.get('/', emailTest)
 // router.post('/', createJobPost)
 // router.get('/:id', getJobPost)
 // router.delete('/:id', deleteJobPost)
