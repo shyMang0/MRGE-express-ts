@@ -44,7 +44,8 @@ export const getAll = async (): Promise<JobListingsOuput[]> => {
 		paranoid: true,
 		attributes: {
 			exclude: ['deleted_at']
-		}
+		},
+		order: [['created_at', 'DESC']]
 	})
 	return <JobListingsOuput[]>tests
 }
