@@ -1,9 +1,8 @@
 import nodemailer, { SentMessageInfo } from 'nodemailer'
-import { MailOptions } from 'nodemailer/lib/sendmail-transport'
+import { MailOptions, ComposeEmail } from '@/types/email'
 import dotenv from 'dotenv'
 dotenv.config()
 
-const EMAIL_HOST = process.env.EMAIL_HOST
 const EMAIL_PORT = Number(process.env.EMAIL_PORT)
 const EMAIL_FROM = process.env.EMAIL_FROM
 const EMAIL_USER = process.env.EMAIL_USER
@@ -22,21 +21,31 @@ const transporter = nodemailer.createTransport({
 	}
 })
 
-export const sendEmailTest = async (): Promise<Boolean> => {
-	const subject = 'Job Posting Verification : First Time Post'
-	const body = `<h1>First Time Post By :</h1>
+export const composeEmail = ({ newUserEmail, id, title, description, link_approve, link_decline }: ComposeEmail): MailOptions => {
+	const subject = `New Job Posting Verification : ${newUserEmail}`
+	const body = `
+	<h1 style="text-decoration: none; color: inherit;">First Time Post By : ${newUserEmail} </h1>
+	<div style="max-width: 500px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 5px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
+		<h2 style="margin-top: 0; color: #333;">${title}</h2>
+		<p style="margin-bottom: 0; color: #666;">${description}</p>
+	</div>
+
+	<hr />
 	<br />
-	<a href="https://example.com" style="display: inline-block; padding: 10px 20px; background-color: green; color: white; text-decoration: none; border-radius: 5px;"> Approve </a>
-	<a href="https://example.com" style="display: inline-block; padding: 10px 20px; background-color: red; color: white; text-decoration: none; border-radius: 5px;"> Decline </a>
-`
-	const mailOptions = {
+	<a href="${SITE_URL}:${PORT}/verifyPosts?listing_id=${id}&action=approve&token=${link_approve}" style="display: inline-block; padding: 10px 20px; background-color: green; color: white; text-decoration: none; border-radius: 5px;"> Approve </a>
+	<a href="${SITE_URL}:${PORT}/verifyPosts?listing_id=${id}&action=decline&token=${link_decline}" style="display: inline-block; padding: 10px 20px; background-color: red; color: white; text-decoration: none; border-radius: 5px;"> Decline </a>
+	`
+	const mailOptions = <MailOptions>{
 		from: EMAIL_FROM, // Sender email address
 		to: MODERATOR_EMAIL,
 		subject,
 		html: body
 	}
-	// Send the email
-	console.log('email', mailOptions)
+
+	return mailOptions
+}
+
+export const sendEmailSmtp = async (mailOptions: MailOptions): Promise<Boolean> => {
 	try {
 		await sendMailAsync(mailOptions)
 		return true
@@ -53,7 +62,7 @@ export const composeAndSendEmail = async (
 	approve_link: string,
 	decline_link: string
 ): Promise<Boolean> => {
-	const subject = 'Job Posting Verification : First Time Post'
+	const subject = `New Job Posting Verification : ${newUserEmail}`
 	const body = `
 	<h1 style="text-decoration: none; color: inherit;">First Time Post By : ${newUserEmail} </h1>
 	<div style="max-width: 500px; background-color: #f5f5f5; border: 1px solid #ddd; border-radius: 5px; padding: 20px; box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);">
@@ -66,15 +75,12 @@ export const composeAndSendEmail = async (
 	<a href="${SITE_URL}:${PORT}/verifyPosts?listing_id=${listing_id}&action=approve&token=${approve_link}" style="display: inline-block; padding: 10px 20px; background-color: green; color: white; text-decoration: none; border-radius: 5px;"> Approve </a>
 	<a href="${SITE_URL}:${PORT}/verifyPosts?listing_id=${listing_id}&action=decline&token=${decline_link}" style="display: inline-block; padding: 10px 20px; background-color: red; color: white; text-decoration: none; border-radius: 5px;"> Decline </a>
 	`
-	const mailOptions = {
+	const mailOptions = <MailOptions>{
 		from: EMAIL_FROM, // Sender email address
 		to: MODERATOR_EMAIL,
 		subject,
 		html: body
 	}
-	// Send the email
-	console.log('email', mailOptions)
-	// return true
 	try {
 		await sendMailAsync(mailOptions)
 		return true
@@ -83,6 +89,26 @@ export const composeAndSendEmail = async (
 	}
 }
 
+export const sendEmailTest = async (): Promise<Boolean> => {
+	const subject = 'Job Posting Verification : First Time Post'
+	const body = `<h1>First Time Post By :</h1>
+	<br />
+	<a href="https://example.com" style="display: inline-block; padding: 10px 20px; background-color: green; color: white; text-decoration: none; border-radius: 5px;"> Approve </a>
+	<a href="https://example.com" style="display: inline-block; padding: 10px 20px; background-color: red; color: white; text-decoration: none; border-radius: 5px;"> Decline </a>
+`
+	const mailOptions = <MailOptions>{
+		from: EMAIL_FROM, // Sender email address
+		to: MODERATOR_EMAIL,
+		subject,
+		html: body
+	}
+	try {
+		await sendMailAsync(mailOptions)
+		return true
+	} catch (error) {
+		return false
+	}
+}
 function sendMailAsync(mailOptions: MailOptions): Promise<boolean> {
 	return new Promise((resolve, reject) => {
 		transporter.sendMail(mailOptions, (error: Error | null, info: SentMessageInfo) => {

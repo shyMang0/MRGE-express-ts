@@ -2,8 +2,10 @@ import { Request, Response } from 'express'
 import * as jobListingsService from '@/api/services/jobListings.service'
 import * as spamPostsService from '@/api/services/spamPosts.service'
 import * as emailService from '@/api/services/email.service'
+import * as queuesService from '@/api/services/queues.service'
 import * as verifyPostsService from '@/api/services/verifyPosts.service'
 import { validateCreateJobListing } from '@/api/validation/jobListings.validation'
+import { ComposeEmail } from '@/types/email'
 
 export const getAlljobListings = async (req: Request, res: Response) => {
 	const notes = await jobListingsService.getAll()
@@ -28,17 +30,27 @@ export const createjobListing = async (req: Request, res: Response) => {
 	try {
 		const jobListingInput = validateCreateJobListing(req.body)
 		const data = await jobListingsService.create(jobListingInput)
-		console.log('jobListingInput', jobListingInput)
 		const isUnique = await jobListingsService.checkUnique(jobListingInput.created_by)
-		//query > if first time send email
-		//generate links approve/decline
-		console.log('isUnique', isUnique)
 		if (isUnique) {
 			const link_approve = verifyPostsService.generateToken(data.id, 'approve')
 			const link_decline = verifyPostsService.generateToken(data.id, 'decline')
-			const email = await emailService.composeAndSendEmail(data.created_by, data.id, data.title, data.description, link_approve, link_decline)
+			const composeEmail = <ComposeEmail>{
+				newUserEmail: data.created_by,
+				id: data.id,
+				title: data.title,
+				description: data.description,
+				link_approve,
+				link_decline
+			}
+
+			// const emailOptions = await emailService.composeEmail(composeEmail)
+			// const mailSent = await emailService.sendEmailSmtp(emailOptions)
+
+			const emailOptions = await emailService.composeEmail(composeEmail)
+			queuesService.emailQueue.push(emailOptions)
+			// console.log('composed queued', emailOptions)
 		}
-		return res.status(201).json({ status: true, message: 'New Job Listing Created', data, emailSent: isUnique })
+		return res.status(201).json({ status: true, message: 'New Job Listing Created', data, willSendEmail: isUnique })
 	} catch (error: any) {
 		return res.status(400).json({ status: false, message: error.message || error })
 	}

@@ -19,16 +19,16 @@ export const verifyListing = async (req: Request, res: Response) => {
 
 	if (action === 'approve') {
 		const update_res = await verifyPostsService.approveListing(listing_id)
-		return res.status(200).json({ listing_id, update_res })
+		return res.status(200).json({ message: 'Listing Has Been Verified', success: update_res })
 	} else if (action === 'decline') {
 		//move to spam table
-		const decline_res = verifyPostsService.declineListing(listing_id, listing)
+		const decline_res = await verifyPostsService.declineListing(listing_id, listing)
 		// const _temp = <any>listing
 		// const params = { ..._temp.toJSON(), declined_at: new Date() }
 		// const transfer_res = await spamPostsService.transferToSpam(params)
 		// jobListingsService.deleteById(listing_id)
 		// return res.status(200).json({ listing: listing })
-		res.status(200).json({ message: 'Declined moved to spam', listing })
+		res.status(200).json({ message: 'Declined moved to spam', success: decline_res })
 	}
 }
 
