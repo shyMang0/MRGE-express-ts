@@ -3,7 +3,6 @@ import dotenv from 'dotenv'
 import http from 'http'
 import bodyParser from 'body-parser'
 import indexRoute from '@/api/routes/index.route'
-import { engine } from 'express-handlebars'
 import cors from 'cors'
 
 const app: Express = express()
@@ -19,8 +18,6 @@ app.use(
 	})
 )
 
-app.engine('handlebars', engine())
-app.set('view engine', 'handlebars')
 app.set('views', './src/views')
 
 app.use(indexRoute)

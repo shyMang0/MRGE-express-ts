@@ -13,7 +13,6 @@ const SITE_URL = process.env.SITE_URL
 const PORT = process.env.PORT
 
 const transporter = nodemailer.createTransport({
-	// service: 'bghmc.online', // e.g., 'Gmail', 'Outlook', 'Yahoo', etc.
 	host: 'bghmc.online',
 	port: EMAIL_PORT,
 	secure: true, //true for 465, false for other ports
