@@ -7,7 +7,7 @@ import * as xml2js from 'xml2js'
 export const curlToXml = async (): Promise<any> => {
 	try {
 		const xml = await axios.get('https://mrge-group-gmbh.jobs.personio.de/xml')
-		const xmljson = await xml2js.parseStringPromise(xml.data)
+		const xmljson = await xml2js.parseStringPromise(xml.data, { explicitArray: false })
 		console.log('xmls', xmljson)
 		return xmljson
 	} catch (error: any) {

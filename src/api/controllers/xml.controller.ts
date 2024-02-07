@@ -9,7 +9,7 @@ import { validateCreateJobListing } from '@/api/validation/jobListings.validatio
 export const fetchXmlData = async (req: Request, res: Response) => {
 	try {
 		const data = await xmlService.curlToXml()
-		res.json({ data })
+		res.json(data)
 	} catch (error: any) {
 		res.status(404).json({ message: error.message || error })
 	}
