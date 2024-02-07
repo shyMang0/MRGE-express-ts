@@ -29,28 +29,12 @@ export const createjobListing = async (req: Request, res: Response) => {
 	// return res.status(200).json({ body: req.body, params: req.params })
 	try {
 		const jobListingInput = validateCreateJobListing(req.body)
-		const data = await jobListingsService.create(jobListingInput)
+		const listing = await jobListingsService.create(jobListingInput)
 		const isUnique = await jobListingsService.checkUnique(jobListingInput.created_by)
 		if (isUnique) {
-			const link_approve = verifyPostsService.generateToken(data.id, 'approve')
-			const link_decline = verifyPostsService.generateToken(data.id, 'decline')
-			const composeEmail = <ComposeEmail>{
-				newUserEmail: data.created_by,
-				id: data.id,
-				title: data.title,
-				description: data.description,
-				link_approve,
-				link_decline
-			}
-
-			// const emailOptions = await emailService.composeEmail(composeEmail)
-			// const mailSent = await emailService.sendEmailSmtp(emailOptions)
-
-			const emailOptions = await emailService.composeEmail(composeEmail)
-			queuesService.emailQueue.push(emailOptions)
-			// console.log('composed queued', emailOptions)
+			const emailStatus = await emailService.composeSendPushEmail(listing)
 		}
-		return res.status(201).json({ status: true, message: 'New Job Listing Created', data, willSendEmail: isUnique })
+		return res.status(201).json({ status: true, message: 'New Job Listing Created', listing, willSendEmail: isUnique })
 	} catch (error: any) {
 		return res.status(400).json({ status: false, message: error.message || error })
 	}

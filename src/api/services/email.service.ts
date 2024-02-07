@@ -1,6 +1,9 @@
 import nodemailer, { SentMessageInfo } from 'nodemailer'
 import { MailOptions, ComposeEmail } from '@/types/email'
 import dotenv from 'dotenv'
+import { JobListingsOuput } from '@/db/models/jobListings.model'
+import * as verifyPostsService from '@/api/services/verifyPosts.service'
+import * as queuesService from '@/api/services/queues.service'
 dotenv.config()
 
 const EMAIL_PORT = Number(process.env.EMAIL_PORT)
@@ -20,6 +23,26 @@ const transporter = nodemailer.createTransport({
 		pass: EMAIL_PW
 	}
 })
+
+export const composeSendPushEmail = async (listing: JobListingsOuput): Promise<Boolean | Error> => {
+	const link_approve = verifyPostsService.generateToken(listing.id, 'approve')
+	const link_decline = verifyPostsService.generateToken(listing.id, 'decline')
+	const emailProps = <ComposeEmail>{
+		newUserEmail: listing.created_by,
+		id: listing.id,
+		title: listing.title,
+		description: listing.description,
+		link_approve,
+		link_decline
+	}
+
+	// const emailOptions = await emailService.composeEmail(composeEmail)
+	// const mailSent = await emailService.sendEmailSmtp(emailOptions)
+
+	const emailOptions = await composeEmail(emailProps)
+	queuesService.emailQueue.push(emailOptions)
+	return true
+}
 
 export const composeEmail = ({ newUserEmail, id, title, description, link_approve, link_decline }: ComposeEmail): MailOptions => {
 	const subject = `New Job Posting Verification : ${newUserEmail}`
