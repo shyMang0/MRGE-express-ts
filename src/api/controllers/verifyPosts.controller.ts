@@ -12,23 +12,27 @@ export const verifyListing = async (req: Request, res: Response) => {
 		return res.status(400).json({ message: 'action & token not valid', listing_id, action, token })
 	}
 
-	const listing = await jobListingsService.getById(listing_id)
-	if (listing.validated_at) {
-		return res.status(200).json({ message: 'Listing Already Validated', listing_id })
-	}
+	try {
+		const listing = await jobListingsService.getById(listing_id)
+		if (listing.validated_at) {
+			return res.status(200).json({ message: 'Listing Already Validated', listing_id })
+		}
 
-	if (action === 'approve') {
-		const update_res = await verifyPostsService.approveListing(listing_id)
-		return res.status(200).json({ message: 'Listing Has Been Verified', success: update_res })
-	} else if (action === 'decline') {
-		//move to spam table
-		const decline_res = await verifyPostsService.declineListing(listing_id, listing)
-		// const _temp = <any>listing
-		// const params = { ..._temp.toJSON(), declined_at: new Date() }
-		// const transfer_res = await spamPostsService.transferToSpam(params)
-		// jobListingsService.deleteById(listing_id)
-		// return res.status(200).json({ listing: listing })
-		res.status(200).json({ message: 'Declined moved to spam', success: decline_res })
+		if (action === 'approve') {
+			const update_res = await verifyPostsService.approveListing(listing_id)
+			return res.status(200).json({ message: 'Listing Has Been Verified', success: update_res })
+		} else if (action === 'decline') {
+			//move to spam table
+			const decline_res = await verifyPostsService.declineListing(listing_id, listing)
+			// const _temp = <any>listing
+			// const params = { ..._temp.toJSON(), declined_at: new Date() }
+			// const transfer_res = await spamPostsService.transferToSpam(params)
+			// jobListingsService.deleteById(listing_id)
+			// return res.status(200).json({ listing: listing })
+			return res.status(200).json({ message: 'Declined moved to spam', success: decline_res })
+		}
+	} catch (error: any) {
+		return res.status(404).json({ message: error.message || error })
 	}
 }
 
