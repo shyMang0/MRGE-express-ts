@@ -2,16 +2,16 @@ import * as jobListingsService from '@/api/services/jobListings.service'
 import * as crypto from 'crypto'
 import * as spamPostsService from '@/api/services/spamPosts.service'
 import dotenv from 'dotenv'
-const secret_key = process.env.SECRET
+
 dotenv.config()
+const secret_key = process.env.SECRET
 
 export const approveListing = async (listing_id: string): Promise<any> => {
 	try {
 		const res = await jobListingsService.update(listing_id, { validated_at: new Date() })
 	} catch (error: any) {
-		throw error
 		console.error(error)
-		//throw error
+		throw error
 	}
 	return true
 }
@@ -23,6 +23,7 @@ export const declineListing = async (listing_id: string, listing: any): Promise<
 		const delete_res = jobListingsService.deleteById(listing_id)
 		return true
 	} catch (error: any) {
+		console.error(error)
 		throw error
 	}
 	return true

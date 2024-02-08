@@ -4,13 +4,14 @@ import Queue from 'better-queue'
 import * as EmailService from '@/api/services/email.service'
 import { MailOptions } from '@/types/email'
 import dotenv from 'dotenv'
+
 dotenv.config()
 const ASSETS_FOLDER = process.env.ASSETS_FOLDER
 
 const store = new SqliteStore({
 	type: 'sql',
 	dialect: 'sqlite',
-	path: ASSETS_FOLDER + '/db/queues.db'
+	path: ASSETS_FOLDER + '/db/Queues.db'
 })
 
 const delayTimer = (ms: number) => new Promise((res) => setTimeout(res, ms))
