@@ -9,6 +9,5 @@ router.get('/spam', getAllSpamPosts)
 router.post('/', createjobListing)
 router.get('/:id', getjobListing)
 router.delete('/:id', deletejobListing)
-// router.put('/:id', updateNote)
 
 export default router

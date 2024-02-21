@@ -10,6 +10,6 @@ export interface ComposeEmail {
 	id: string
 	title: string
 	description: string
-	link_approve: string
-	link_decline: string
+	linkApprove: string
+	linkDecline: string
 }

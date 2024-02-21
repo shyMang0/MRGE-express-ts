@@ -7,8 +7,8 @@ export const verifyListing = async (req: Request, res: Response) => {
 	const listing_id = <string>req.query.listing_id
 	const action = <string>req.query.action
 	const token = <string>req.query.token
-	const match_result = verifyPostsService.verifyToken(listing_id, action, token)
-	if (!match_result) {
+	const matchResult = verifyPostsService.verifyToken(listing_id, action, token)
+	if (!matchResult) {
 		return res.status(400).json({ message: 'action & token not valid', listing_id, action, token })
 	}
 
@@ -22,13 +22,13 @@ export const verifyListing = async (req: Request, res: Response) => {
 		return res.status(200).json({ message: 'Listing Has Been Verified', success: update_res })
 	} else if (action === 'decline') {
 		//move to spam table
-		const decline_res = await verifyPostsService.declineListing(listing_id, listing)
+		const declineRes = await verifyPostsService.declineListing(listing_id, listing)
 		// const _temp = <any>listing
 		// const params = { ..._temp.toJSON(), declined_at: new Date() }
 		// const transfer_res = await spamPostsService.transferToSpam(params)
 		// jobListingsService.deleteById(listing_id)
 		// return res.status(200).json({ listing: listing })
-		res.status(200).json({ message: 'Declined moved to spam', success: decline_res })
+		res.status(200).json({ message: 'Declined moved to spam', success: declineRes })
 	}
 }
 

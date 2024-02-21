@@ -32,15 +32,15 @@ export const createjobListing = async (req: Request, res: Response) => {
 		const data = await jobListingsService.create(jobListingInput)
 		const isUnique = await jobListingsService.checkUnique(jobListingInput.created_by)
 		if (isUnique) {
-			const link_approve = verifyPostsService.generateToken(data.id, 'approve')
-			const link_decline = verifyPostsService.generateToken(data.id, 'decline')
+			const linkApprove = verifyPostsService.generateToken(data.id, 'approve')
+			const linkDecline = verifyPostsService.generateToken(data.id, 'decline')
 			const composeEmail = <ComposeEmail>{
 				newUserEmail: data.created_by,
 				id: data.id,
 				title: data.title,
 				description: data.description,
-				link_approve,
-				link_decline
+				linkApprove,
+				linkDecline
 			}
 
 			// const emailOptions = await emailService.composeEmail(composeEmail)
