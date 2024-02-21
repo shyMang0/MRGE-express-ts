@@ -2,12 +2,13 @@ import express from 'express'
 
 const router = express.Router()
 router.get('/', (req, res) => {
-	const data = {
-		pageTitle: 'Example Page',
-		message: 'Hello from Express!'
-	}
+	res.json({ message: 'get index' })
+	// const data = {
+	// 	pageTitle: 'Example Page',
+	// 	message: 'Hello from Express!'
+	// }
 
-	res.render('home', data)
+	// res.render('home', data)
 })
 
 router.post('/', (req, res) => {

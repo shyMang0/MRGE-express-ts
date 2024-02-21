@@ -27,15 +27,15 @@ const transporter = nodemailer.createTransport({
 })
 
 export const composeSendPushEmail = async (listing: JobListingsOuput): Promise<Boolean | Error> => {
-	const link_approve = verifyPostsService.generateToken(listing.id, 'approve')
-	const link_decline = verifyPostsService.generateToken(listing.id, 'decline')
+	const linkApprove = verifyPostsService.generateToken(listing.id, 'approve')
+	const linkDecline = verifyPostsService.generateToken(listing.id, 'decline')
 	const emailProps = <ComposeEmail>{
 		newUserEmail: listing.created_by,
 		id: listing.id,
 		title: listing.title,
 		description: listing.description,
-		link_approve,
-		link_decline
+		linkApprove,
+		linkDecline
 	}
 
 	// const emailOptions = await emailService.composeEmail(emailProps)
@@ -46,7 +46,7 @@ export const composeSendPushEmail = async (listing: JobListingsOuput): Promise<B
 	return true
 }
 
-export const composeEmail = ({ newUserEmail, id, title, description, link_approve, link_decline }: ComposeEmail): MailOptions => {
+export const composeEmail = ({ newUserEmail, id, title, description, linkApprove, linkDecline }: ComposeEmail): MailOptions => {
 	const subject = `New Job Posting Verification : ${newUserEmail}`
 	const body = `
 	<h1 style="text-decoration: none; color: inherit;">First Time Post By : ${newUserEmail} </h1>
@@ -57,8 +57,8 @@ export const composeEmail = ({ newUserEmail, id, title, description, link_approv
 
 	<hr />
 	<br />
-	<a href="${SITE_URL}:${PORT}/verifyPosts?listing_id=${id}&action=approve&token=${link_approve}" style="display: inline-block; padding: 10px 20px; background-color: green; color: white; text-decoration: none; border-radius: 5px;"> Approve </a>
-	<a href="${SITE_URL}:${PORT}/verifyPosts?listing_id=${id}&action=decline&token=${link_decline}" style="display: inline-block; padding: 10px 20px; background-color: red; color: white; text-decoration: none; border-radius: 5px;"> Decline </a>
+	<a href="${SITE_URL}:${PORT}/verifyPosts?listing_id=${id}&action=approve&token=${linkApprove}" style="display: inline-block; padding: 10px 20px; background-color: green; color: white; text-decoration: none; border-radius: 5px;"> Approve </a>
+	<a href="${SITE_URL}:${PORT}/verifyPosts?listing_id=${id}&action=decline&token=${linkDecline}" style="display: inline-block; padding: 10px 20px; background-color: red; color: white; text-decoration: none; border-radius: 5px;"> Decline </a>
 	`
 	const mailOptions = <MailOptions>{
 		from: EMAIL_FROM,

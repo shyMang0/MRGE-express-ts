@@ -2,7 +2,10 @@ import { Request, Response } from 'express'
 import * as jobListingsService from '@/api/services/jobListings.service'
 import * as spamPostsService from '@/api/services/spamPosts.service'
 import * as emailService from '@/api/services/email.service'
+import * as verifyPostsService from '@/api/services/verifyPosts.service'
+import * as queuesService from '@/api/services/queues.service'
 import { validateCreateJobListing } from '@/api/validation/jobListings.validation'
+import { ComposeEmail } from '@/types/email'
 
 export const getAlljobListings = async (req: Request, res: Response) => {
 	const notes = await jobListingsService.getAll()
@@ -19,19 +22,19 @@ export const createjobListing = async (req: Request, res: Response) => {
 		const listing = await jobListingsService.create(jobListingInput)
 		const isUnique = await jobListingsService.checkUnique(jobListingInput.created_by)
 		if (isUnique) {
-			const linkApprove = verifyPostsService.generateToken(data.id, 'approve')
-			const linkDecline = verifyPostsService.generateToken(data.id, 'decline')
+			const linkApprove = verifyPostsService.generateToken(listing.id, 'approve')
+			const linkDecline = verifyPostsService.generateToken(listing.id, 'decline')
 			const composeEmail = <ComposeEmail>{
-				newUserEmail: data.created_by,
-				id: data.id,
-				title: data.title,
-				description: data.description,
+				newUserEmail: listing.created_by,
+				id: listing.id,
+				title: listing.title,
+				description: listing.description,
 				linkApprove,
 				linkDecline
 			}
 
-			const emailOptions = await emailService.composeEmail(composeEmail)
-			const mailSent = await emailService.sendEmailSmtp(emailOptions)
+			// const emailOptions = await emailService.composeEmail(composeEmail)
+			// const mailSent = await emailService.sendEmailSmtp(emailOptions)
 
 			const emailOptions = await emailService.composeEmail(composeEmail)
 			queuesService.emailQueue.push(emailOptions)
