@@ -1,6 +1,11 @@
 import nodemailer, { SentMessageInfo } from 'nodemailer'
 import { MailOptions, ComposeEmail } from '@/types/email'
+import { JobListingsOuput } from '@/db/models/jobListings.model'
+import * as verifyPostsService from '@/api/services/verifyPosts.service'
+import * as queuesService from '@/api/services/queues.service'
+// import * as emailService from '@/api/services/email.service'
 import dotenv from 'dotenv'
+
 dotenv.config()
 
 const EMAIL_PORT = Number(process.env.EMAIL_PORT)
@@ -14,12 +19,32 @@ const PORT = process.env.PORT
 const transporter = nodemailer.createTransport({
 	host: 'bghmc.online',
 	port: EMAIL_PORT,
-	secure: true, //true for 465, false for other ports
+	secure: true,
 	auth: {
 		user: EMAIL_USER,
 		pass: EMAIL_PW
 	}
 })
+
+export const composeSendPushEmail = async (listing: JobListingsOuput): Promise<Boolean | Error> => {
+	const link_approve = verifyPostsService.generateToken(listing.id, 'approve')
+	const link_decline = verifyPostsService.generateToken(listing.id, 'decline')
+	const emailProps = <ComposeEmail>{
+		newUserEmail: listing.created_by,
+		id: listing.id,
+		title: listing.title,
+		description: listing.description,
+		link_approve,
+		link_decline
+	}
+
+	// const emailOptions = await emailService.composeEmail(emailProps)
+	// const mailSent = await emailService.sendEmailSmtp(emailOptions)
+
+	const emailOptions = await composeEmail(emailProps)
+	queuesService.emailQueue.push(emailOptions)
+	return true
+}
 
 export const composeEmail = ({ newUserEmail, id, title, description, link_approve, link_decline }: ComposeEmail): MailOptions => {
 	const subject = `New Job Posting Verification : ${newUserEmail}`
@@ -36,7 +61,7 @@ export const composeEmail = ({ newUserEmail, id, title, description, link_approv
 	<a href="${SITE_URL}:${PORT}/verifyPosts?listing_id=${id}&action=decline&token=${link_decline}" style="display: inline-block; padding: 10px 20px; background-color: red; color: white; text-decoration: none; border-radius: 5px;"> Decline </a>
 	`
 	const mailOptions = <MailOptions>{
-		from: EMAIL_FROM, // Sender email address
+		from: EMAIL_FROM,
 		to: MODERATOR_EMAIL,
 		subject,
 		html: body
@@ -76,7 +101,7 @@ export const composeAndSendEmail = async (
 	<a href="${SITE_URL}:${PORT}/verifyPosts?listing_id=${listing_id}&action=decline&token=${decline_link}" style="display: inline-block; padding: 10px 20px; background-color: red; color: white; text-decoration: none; border-radius: 5px;"> Decline </a>
 	`
 	const mailOptions = <MailOptions>{
-		from: EMAIL_FROM, // Sender email address
+		from: EMAIL_FROM,
 		to: MODERATOR_EMAIL,
 		subject,
 		html: body
@@ -97,7 +122,7 @@ export const sendEmailTest = async (): Promise<Boolean> => {
 	<a href="https://example.com" style="display: inline-block; padding: 10px 20px; background-color: red; color: white; text-decoration: none; border-radius: 5px;"> Decline </a>
 `
 	const mailOptions = <MailOptions>{
-		from: EMAIL_FROM, // Sender email address
+		from: EMAIL_FROM,
 		to: MODERATOR_EMAIL,
 		subject,
 		html: body
@@ -116,7 +141,7 @@ function sendMailAsync(mailOptions: MailOptions): Promise<boolean> {
 				console.error('Error sending email:', error)
 				resolve(false)
 			} else {
-				console.log('Email sent:', info.response)
+				console.log('Email Sent...   ', new Date(), info.response)
 				resolve(true)
 			}
 		})

@@ -12,10 +12,11 @@ export const verifyListing = async (req: Request, res: Response) => {
 		return res.status(400).json({ message: 'action & token not valid', listing_id, action, token })
 	}
 
-	const listing = await jobListingsService.getById(listing_id)
-	if (listing.validated_at) {
-		return res.status(200).json({ message: 'Listing Already Validated', listing_id })
-	}
+	try {
+		const listing = await jobListingsService.getById(listing_id)
+		if (listing.validated_at) {
+			return res.status(200).json({ message: 'Listing Already Validated', listing_id })
+		}
 
 	if (action === 'approve') {
 		const update_res = await verifyPostsService.approveListing(listing_id)

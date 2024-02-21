@@ -2,10 +2,7 @@ import { Request, Response } from 'express'
 import * as jobListingsService from '@/api/services/jobListings.service'
 import * as spamPostsService from '@/api/services/spamPosts.service'
 import * as emailService from '@/api/services/email.service'
-import * as queuesService from '@/api/services/queues.service'
-import * as verifyPostsService from '@/api/services/verifyPosts.service'
 import { validateCreateJobListing } from '@/api/validation/jobListings.validation'
-import { ComposeEmail } from '@/types/email'
 
 export const getAlljobListings = async (req: Request, res: Response) => {
 	const notes = await jobListingsService.getAll()
@@ -16,20 +13,10 @@ export const getAlljobListings = async (req: Request, res: Response) => {
 	}
 }
 
-export const getAllSpamPosts = async (req: Request, res: Response) => {
-	const spams = await spamPostsService.getAll()
-	try {
-		return res.status(200).json(spams)
-	} catch (error: any) {
-		res.status(400).json({ message: error.message || error })
-	}
-}
-
 export const createjobListing = async (req: Request, res: Response) => {
-	// return res.status(200).json({ body: req.body, params: req.params })
 	try {
 		const jobListingInput = validateCreateJobListing(req.body)
-		const data = await jobListingsService.create(jobListingInput)
+		const listing = await jobListingsService.create(jobListingInput)
 		const isUnique = await jobListingsService.checkUnique(jobListingInput.created_by)
 		if (isUnique) {
 			const linkApprove = verifyPostsService.generateToken(data.id, 'approve')
@@ -43,14 +30,14 @@ export const createjobListing = async (req: Request, res: Response) => {
 				linkDecline
 			}
 
-			// const emailOptions = await emailService.composeEmail(composeEmail)
-			// const mailSent = await emailService.sendEmailSmtp(emailOptions)
+			const emailOptions = await emailService.composeEmail(composeEmail)
+			const mailSent = await emailService.sendEmailSmtp(emailOptions)
 
 			const emailOptions = await emailService.composeEmail(composeEmail)
 			queuesService.emailQueue.push(emailOptions)
 			// console.log('composed queued', emailOptions)
 		}
-		return res.status(201).json({ status: true, message: 'New Job Listing Created', data, willSendEmail: isUnique })
+		return res.status(201).json({ status: true, message: 'New Job Listing Created', listing, willSendEmail: isUnique })
 	} catch (error: any) {
 		return res.status(400).json({ status: false, message: error.message || error })
 	}
@@ -64,6 +51,15 @@ export const getjobListing = async (req: Request, res: Response) => {
 		res.json({ data })
 	} catch (error: any) {
 		res.status(404).json({ message: error.message || error })
+	}
+}
+
+export const getAllSpamPosts = async (req: Request, res: Response) => {
+	const spams = await spamPostsService.getAll()
+	try {
+		return res.status(200).json(spams)
+	} catch (error: any) {
+		res.status(400).json({ message: error.message || error })
 	}
 }
 
