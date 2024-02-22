@@ -8,8 +8,7 @@ const connectionOptions = {
 }
 
 // Create a queue instance with the specified connection
-const myQueue = new Queue('myQueueName', { connection: connectionOptions })
+console.log('QUEUE init')
+const myQueue = new Queue('emailQueue', { connection: connectionOptions })
 
-export async function addJob(data: any): Promise<void> {
-	await myQueue.add('jobName', data)
-}
+export default myQueue

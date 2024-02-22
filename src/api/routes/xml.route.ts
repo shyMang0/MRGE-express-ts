@@ -1,11 +1,12 @@
 import express from 'express'
 
-import { fetchXmlData } from '@/api/controllers/xml.controller'
+import { fetchXmlData, fetchXmlDataCache } from '@/api/controllers/xml.controller'
 
 const router = express.Router()
 
-router.get('/', fetchXmlData)
-// router.get('/generate', generateToken)
+// router.get('/', fetchXmlData)
+router.get('/', fetchXmlDataCache)
+router.get('/cache', fetchXmlDataCache)
 // router.post('/', createJobPost)
 // router.get('/:id', getJobPost)
 // router.delete('/:id', deleteJobPost)

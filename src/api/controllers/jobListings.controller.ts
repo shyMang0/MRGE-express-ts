@@ -3,9 +3,10 @@ import * as jobListingsService from '@/api/services/jobListings.service'
 import * as spamPostsService from '@/api/services/spamPosts.service'
 import * as emailService from '@/api/services/email.service'
 import * as verifyPostsService from '@/api/services/verifyPosts.service'
-import * as queuesService from '@/api/services/queues.service'
+import * as queuesService from '@/api/services/sqliteQueues.service'
 import { validateCreateJobListing } from '@/api/validation/jobListings.validation'
 import { ComposeEmail } from '@/types/email'
+import * as redisService from '@/api/services/redisQueue.service'
 
 export const getAlljobListings = async (req: Request, res: Response) => {
 	const notes = await jobListingsService.getAll()
@@ -37,8 +38,9 @@ export const createjobListing = async (req: Request, res: Response) => {
 			// const mailSent = await emailService.sendEmailSmtp(emailOptions)
 
 			const emailOptions = await emailService.composeEmail(composeEmail)
-			queuesService.emailQueue.push(emailOptions)
+			// queuesService.emailQueue.push(emailOptions)
 			// console.log('composed queued', emailOptions)
+			await redisService.addJob(emailOptions)
 		}
 		return res.status(201).json({ status: true, message: 'New Job Listing Created', listing, willSendEmail: isUnique })
 	} catch (error: any) {

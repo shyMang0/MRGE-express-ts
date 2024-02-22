@@ -2,7 +2,7 @@ import nodemailer, { SentMessageInfo } from 'nodemailer'
 import { MailOptions, ComposeEmail } from '@/types/email'
 import { JobListingsOuput } from '@/db/models/jobListings.model'
 import * as verifyPostsService from '@/api/services/verifyPosts.service'
-import * as queuesService from '@/api/services/queues.service'
+import * as queuesService from '@/api/services/sqliteQueues.service'
 // import * as emailService from '@/api/services/email.service'
 import dotenv from 'dotenv'
 
@@ -70,7 +70,7 @@ export const composeEmail = ({ newUserEmail, id, title, description, linkApprove
 	return mailOptions
 }
 
-export const sendEmailSmtp = async (mailOptions: MailOptions): Promise<Boolean> => {
+export const sendEmailSmtp = async (mailOptions: MailOptions): Promise<boolean> => {
 	try {
 		await sendMailAsync(mailOptions)
 		return true
